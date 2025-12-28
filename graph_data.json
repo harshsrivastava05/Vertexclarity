@@ -1,0 +1,341 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "type": "service",
+      "name": "api-gateway",
+      "team": "platform-team",
+      "oncall": "@alice",
+      "image": "./services/api-gateway",
+      "ports": [
+        "8080:8080"
+      ],
+      "id": "service:api-gateway"
+    },
+    {
+      "type": "service",
+      "name": "auth-service",
+      "team": "identity-team",
+      "oncall": "@bob",
+      "image": "./services/auth-service",
+      "ports": [
+        "8081:8081"
+      ],
+      "id": "service:auth-service"
+    },
+    {
+      "type": "service",
+      "name": "order-service",
+      "team": "orders-team",
+      "oncall": "@dave",
+      "image": "./services/order-service",
+      "ports": [
+        "8082:8082"
+      ],
+      "namespace": "ecommerce",
+      "replicas": 3,
+      "id": "service:order-service"
+    },
+    {
+      "type": "service",
+      "name": "payment-service",
+      "team": "payments-team",
+      "oncall": "@frank",
+      "image": "./services/payment-service",
+      "ports": [
+        "8083:8083"
+      ],
+      "namespace": "ecommerce",
+      "replicas": 2,
+      "id": "service:payment-service"
+    },
+    {
+      "type": "service",
+      "name": "inventory-service",
+      "team": "orders-team",
+      "oncall": "@eve",
+      "image": "./services/inventory-service",
+      "ports": [
+        "8084:8084"
+      ],
+      "id": "service:inventory-service"
+    },
+    {
+      "type": "service",
+      "name": "notification-service",
+      "team": "platform-team",
+      "oncall": "@alice",
+      "image": "./services/notification-service",
+      "ports": [
+        "8085:8085"
+      ],
+      "id": "service:notification-service"
+    },
+    {
+      "type": "service",
+      "name": "recommendation-service",
+      "team": "ml-team",
+      "oncall": "@grace",
+      "image": "./services/recommendation-service",
+      "ports": [
+        "8086:8086"
+      ],
+      "id": "service:recommendation-service"
+    },
+    {
+      "type": "database",
+      "name": "users-db",
+      "team": "identity-team",
+      "oncall": "unknown",
+      "image": "postgres:15",
+      "id": "database:users-db"
+    },
+    {
+      "type": "database",
+      "name": "orders-db",
+      "team": "orders-team",
+      "oncall": "unknown",
+      "image": "postgres:15",
+      "id": "database:orders-db"
+    },
+    {
+      "type": "database",
+      "name": "payments-db",
+      "team": "payments-team",
+      "oncall": "unknown",
+      "image": "postgres:15",
+      "id": "database:payments-db"
+    },
+    {
+      "type": "database",
+      "name": "inventory-db",
+      "team": "orders-team",
+      "oncall": "unknown",
+      "image": "postgres:15",
+      "id": "database:inventory-db"
+    },
+    {
+      "type": "cache",
+      "name": "redis-main",
+      "team": "platform-team",
+      "oncall": "unknown",
+      "image": "redis:7-alpine",
+      "ports": [
+        "6379:6379"
+      ],
+      "id": "cache:redis-main"
+    },
+    {
+      "type": "team",
+      "name": "platform-team",
+      "lead": "@alice",
+      "slack": "#platform-eng",
+      "pagerduty": "platform-oncall",
+      "id": "team:platform-team"
+    },
+    {
+      "type": "team",
+      "name": "identity-team",
+      "lead": "@bob",
+      "slack": "#identity-eng",
+      "pagerduty": "identity-oncall",
+      "id": "team:identity-team"
+    },
+    {
+      "type": "team",
+      "name": "orders-team",
+      "lead": "@dave",
+      "slack": "#orders-eng",
+      "pagerduty": "orders-oncall",
+      "id": "team:orders-team"
+    },
+    {
+      "type": "team",
+      "name": "payments-team",
+      "lead": "@frank",
+      "slack": "#payments-eng",
+      "pagerduty": "payments-oncall",
+      "id": "team:payments-team"
+    },
+    {
+      "type": "team",
+      "name": "ml-team",
+      "lead": "@grace",
+      "slack": "#ml-eng",
+      "pagerduty": "ml-oncall",
+      "id": "team:ml-team"
+    }
+  ],
+  "links": [
+    {
+      "id": "edge:api-gateway-calls-auth-service",
+      "type": "calls",
+      "source": "service:api-gateway",
+      "target": "service:auth-service"
+    },
+    {
+      "id": "edge:api-gateway-calls-order-service",
+      "type": "calls",
+      "source": "service:api-gateway",
+      "target": "service:order-service"
+    },
+    {
+      "id": "edge:api-gateway-calls-payment-service",
+      "type": "calls",
+      "source": "service:api-gateway",
+      "target": "service:payment-service"
+    },
+    {
+      "id": "edge:api-gateway-calls-recommendation-service",
+      "type": "calls",
+      "source": "service:api-gateway",
+      "target": "service:recommendation-service"
+    },
+    {
+      "id": "edge:auth-service-connects_to-users-db",
+      "type": "connects_to",
+      "source": "service:auth-service",
+      "target": "database:users-db"
+    },
+    {
+      "id": "edge:auth-service-connects_to-redis-main",
+      "type": "connects_to",
+      "source": "service:auth-service",
+      "target": "cache:redis-main"
+    },
+    {
+      "id": "edge:order-service-connects_to-orders-db",
+      "type": "connects_to",
+      "source": "service:order-service",
+      "target": "database:orders-db"
+    },
+    {
+      "id": "edge:order-service-calls-payment-service",
+      "type": "calls",
+      "source": "service:order-service",
+      "target": "service:payment-service"
+    },
+    {
+      "id": "edge:order-service-calls-inventory-service",
+      "type": "calls",
+      "source": "service:order-service",
+      "target": "service:inventory-service"
+    },
+    {
+      "id": "edge:order-service-calls-notification-service",
+      "type": "calls",
+      "source": "service:order-service",
+      "target": "service:notification-service"
+    },
+    {
+      "id": "edge:payment-service-connects_to-payments-db",
+      "type": "connects_to",
+      "source": "service:payment-service",
+      "target": "database:payments-db"
+    },
+    {
+      "id": "edge:payment-service-calls-notification-service",
+      "type": "calls",
+      "source": "service:payment-service",
+      "target": "service:notification-service"
+    },
+    {
+      "id": "edge:inventory-service-connects_to-inventory-db",
+      "type": "connects_to",
+      "source": "service:inventory-service",
+      "target": "database:inventory-db"
+    },
+    {
+      "id": "edge:inventory-service-connects_to-redis-main",
+      "type": "connects_to",
+      "source": "service:inventory-service",
+      "target": "cache:redis-main"
+    },
+    {
+      "id": "edge:notification-service-connects_to-redis-main",
+      "type": "connects_to",
+      "source": "service:notification-service",
+      "target": "cache:redis-main"
+    },
+    {
+      "id": "edge:recommendation-service-connects_to-redis-main",
+      "type": "connects_to",
+      "source": "service:recommendation-service",
+      "target": "cache:redis-main"
+    },
+    {
+      "id": "edge:platform-team-owns-api-gateway",
+      "type": "owns",
+      "source": "team:platform-team",
+      "target": "service:api-gateway"
+    },
+    {
+      "id": "edge:platform-team-owns-notification-service",
+      "type": "owns",
+      "source": "team:platform-team",
+      "target": "service:notification-service"
+    },
+    {
+      "id": "edge:platform-team-owns-redis-main",
+      "type": "owns",
+      "source": "team:platform-team",
+      "target": "cache:redis-main"
+    },
+    {
+      "id": "edge:identity-team-owns-auth-service",
+      "type": "owns",
+      "source": "team:identity-team",
+      "target": "service:auth-service"
+    },
+    {
+      "id": "edge:identity-team-owns-users-db",
+      "type": "owns",
+      "source": "team:identity-team",
+      "target": "database:users-db"
+    },
+    {
+      "id": "edge:orders-team-owns-order-service",
+      "type": "owns",
+      "source": "team:orders-team",
+      "target": "service:order-service"
+    },
+    {
+      "id": "edge:orders-team-owns-inventory-service",
+      "type": "owns",
+      "source": "team:orders-team",
+      "target": "service:inventory-service"
+    },
+    {
+      "id": "edge:orders-team-owns-orders-db",
+      "type": "owns",
+      "source": "team:orders-team",
+      "target": "database:orders-db"
+    },
+    {
+      "id": "edge:orders-team-owns-inventory-db",
+      "type": "owns",
+      "source": "team:orders-team",
+      "target": "database:inventory-db"
+    },
+    {
+      "id": "edge:payments-team-owns-payment-service",
+      "type": "owns",
+      "source": "team:payments-team",
+      "target": "service:payment-service"
+    },
+    {
+      "id": "edge:payments-team-owns-payments-db",
+      "type": "owns",
+      "source": "team:payments-team",
+      "target": "database:payments-db"
+    },
+    {
+      "id": "edge:ml-team-owns-recommendation-service",
+      "type": "owns",
+      "source": "team:ml-team",
+      "target": "service:recommendation-service"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ekg-app:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - LLM_BASE_URL=http://host.docker.internal:11434
+      - LLM_MODEL=llama3.1
+    # Run the build script BEFORE starting Streamlit
+    command: sh -c "python build_graph.py && streamlit run chat/interface.py --server.address=0.0.0.0"
