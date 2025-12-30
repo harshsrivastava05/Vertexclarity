@@ -74,7 +74,8 @@ Q: "Hi"
 JSON: {"tool": "chat", "params": {"response": "Hello! Ask me about your engineering infrastructure."}}
 """
         
-        full_prompt = f"{system_prompt}\n\nQ: \"{user_query}\"\nJSON:"
+        # Safer prompt construction
+        full_prompt = f"{system_prompt}\n\nUser query: {json.dumps(user_query)}\n\nJSON:"
         
         response = self.generate(full_prompt)
         print(f"DEBUG: Raw LLM Response: [{response}]")
