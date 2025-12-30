@@ -132,9 +132,12 @@ with tab1:
                         # Returns a generator for streaming
                         final_response_stream = llm.summarize_results(prompt, result)
                     
+                except (requests.RequestException, json.JSONDecodeError) as e:
+                    st.error(f"LLM Connection Error: {e}")
+                    final_response_stream = "Sorry, I'm having trouble connecting to the language model. Please check the connection."
                 except Exception as e:
-                    st.error(f"Error: {str(e)}")
-                    final_response_stream = f"Sorry, error: {str(e)}"
+                    st.error(f"An unexpected error occurred: {e}")
+                    final_response_stream = "An unexpected error occurred. Please try again later."
             
             # Stream the output
             if isinstance(final_response_stream, str):
