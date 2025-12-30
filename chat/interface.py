@@ -2,7 +2,6 @@ import streamlit as st
 import sys
 import os
 import json
-import requests
 import streamlit.components.v1 as components
 
 # Add parent dir to path to import modules
