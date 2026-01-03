@@ -34,6 +34,28 @@ Imagine asking: *"What breaks if the Payments Database goes down?"* and getting 
 
 Here is how we built it and **why** we made these choices.
 
+```mermaid
+graph TD
+    subgraph "Ingestion Layer"
+        Files[Config Files] --> Connectors
+        Connectors[Connectors (Docker, K8s, Teams)] --> Parser[BaseConnector]
+    end
+    
+    subgraph "Core Engine"
+        Parser --> Builder[Graph Builder]
+        Builder --> Graph[NetworkX Graph]
+    end
+    
+    subgraph "Interaction Layer"
+        User --> UI[Streamlit UI]
+        UI --> Query[Query Engine]
+        Query --> Graph
+        Query --> Context[Context Builder]
+        Context --> LLM[Llama 3.1]
+        LLM --> UI
+    end
+```
+
 ### 1. The Core: "The Graph"
 **Challenge**: Engineering info is scattered.
 **Solution**: We used a **Graph Database** model.
@@ -49,11 +71,20 @@ Here is how we built it and **why** we made these choices.
     - **Cost**: It's free. No OpenAI bills.
     - **Control**: We can tweak the model as much as we want.
 
-### 3. The Eyes: "Connectors"
-**Challenge**: Every tool (Docker, K8s, Terraform) has a different file format.
-**Solution**: We built a "Plug-and-Play" connector system.
-- **Design**: A generic `BaseConnector` that anyone can extend. 
-- **Reasoning**: If you want to add Terraform support later, you assume write *one* file `terraform.py` and plug it in. You don't have to rewrite the whole system. This makes the project **future-proof**.
+### 3. The Eyes: "Connectors" (The Connector Architecture)
+**Challenge**: Modern infrastructure uses dozens of different formats (YAML, HCL, JSON).
+**Solution**: We implemented a **Plugin-based Connector Architecture**.
+
+- **The Flow**: 
+  1. `Raw Files` are identified by extension.
+  2. The appropriate `Connector` (e.g., `KubernetesConnector`) is instantiated.
+  3. It parses the file and emits standardized `Node` and `Edge` objects.
+  4. The `GraphBuilder` ingests these objects without knowing where they came from.
+
+- **Why this matters**:
+  - **Extensibility**: Adding support for a new tool (like **Terraform** or **Ansible**) is trivial. You create a single class inheriting from `BaseConnector` and implementing `parse()`.
+  - **Isolation**: Improvements to the Kubernetes parser don't break the Docker parser.
+  - **Future-Proofing**: The core graph engine never changes; only the plugins do.
 
 ### 4. The Face: "Streamlit UI"
 **Challenge**: We need a chat interface quickly.
