@@ -43,7 +43,7 @@ Here is how we built it and **why** we made these choices.
 graph TD
     subgraph "Ingestion Layer"
         Files[Config Files] --> Connectors
-        Connectors[Connectors (Docker, K8s, Teams)] --> Parser[BaseConnector]
+        Connectors["Connectors (Docker, K8s, Teams)"] --> Parser[BaseConnector]
     end
     
     subgraph "Core Engine"
