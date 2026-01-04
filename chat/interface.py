@@ -43,9 +43,31 @@ st.markdown("""
 st.title("🕸️ Vertex Clarity")
 st.caption("AI-Powered Engineering Knowledge Graph")
 
+# Chat History Persistence
+HISTORY_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'chat_history.json')
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, 'r') as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def save_history(messages):
+    try:
+        data_dir = os.path.dirname(HISTORY_FILE)
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+        with open(HISTORY_FILE, 'w') as f:
+            json.dump(messages, f)
+    except Exception as e:
+        print(f"Failed to save history: {e}")
+
 # Initialize Session State
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = load_history()
 
 # Load Graph & Engine only once
 @st.cache_resource
@@ -64,7 +86,10 @@ def get_llm():
 engine = get_engine()
 llm = get_llm()
 
-# Sidebar - Graph Stats
+engine = get_engine()
+llm = get_llm()
+
+# Sidebar - Graph Stats & Tools
 with st.sidebar:
     st.header("Graph Status")
     if engine.graph.number_of_nodes() > 0:
@@ -75,6 +100,28 @@ with st.sidebar:
     else:
         st.error("Graph Empty")
         st.info("Run `python build_graph.py` or restart the container.")
+    
+    st.markdown("---")
+    st.subheader("Session History")
+    history_container = st.empty()
+
+    def update_sidebar_history():
+        with history_container.container():
+            for msg in st.session_state.messages:
+                if msg["role"] == "user":
+                    # Truncate if long
+                    content = msg["content"]
+                    display_text = content[:40] + "..." if len(content) > 40 else content
+                    st.caption(f"👤 {display_text}")
+    
+    # Initial Render
+    update_sidebar_history()
+
+    st.markdown("---")
+    if st.button("Clear Chat History"):
+        st.session_state.messages = []
+        save_history([])
+        st.rerun()
 
 # Tabs for Chat and Visualization
 tab1, tab2 = st.tabs(["💬 Chat", "🕸️ Architecture"])
@@ -88,13 +135,16 @@ with tab1:
     if prompt := st.chat_input("Ex: What breaks if orders-db fails?"):
         # 1. User Message
         st.session_state.messages.append({"role": "user", "content": prompt})
+        save_history(st.session_state.messages)
+        update_sidebar_history()  # Update sidebar immediately
+        
         with st.chat_message("user"):
             st.markdown(prompt)
 
         # 2. Processing
         with st.chat_message("assistant"):
             
-            # Use spinner for the "thinking" state (Intent Parsing & Tool Execution)
+            # Use spinner for the "thinking" state
             with st.spinner("Analyzing graph..."):
                 try:
                     # A. Intent Parsing
@@ -119,7 +169,7 @@ with tab1:
                     elif tool == "get_nodes":
                         result = engine.get_nodes(params.get("type"))
                     elif tool == "chat":
-                         result = params.get("response")
+                            result = params.get("response")
                     else:
                         result = {"error": f"Unknown tool: {tool}"}
                     
@@ -146,6 +196,9 @@ with tab1:
             else:
                 response = st.write_stream(final_response_stream)
                 st.session_state.messages.append({"role": "assistant", "content": response})
+            
+            save_history(st.session_state.messages)
+            update_sidebar_history()  # Update sidebar immediately
 
             # Debug Info (Collapsed) - Show AFTER extraction
             with st.expander("🛠️ Debug Info"):
@@ -197,17 +250,21 @@ with tab2:
             }
           },
           "physics": {
+            "solver": "forceAtlas2Based",
             "forceAtlas2Based": {
-              "gravitationalConstant": -110,
+              "gravitationalConstant": -50,
+              "centralGravity": 0.01,
               "springLength": 100,
-              "springConstant": 0.05,
-              "damping": 0.9
+              "springConstant": 0.08,
+              "damping": 0.4
             },
             "minVelocity": 0.75,
-            "solver": "forceAtlas2Based",
             "stabilization": {
               "enabled": true,
-              "iterations": 1000
+              "iterations": 1000,
+              "updateInterval": 25,
+              "onlyDynamicEdges": false,
+              "fit": true
             }
           }
         }

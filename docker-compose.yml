@@ -11,4 +11,4 @@ services:
       - LLM_BASE_URL=http://host.docker.internal:11434
       - LLM_MODEL=llama3.1
     # Run the build script BEFORE starting Streamlit
-    command: sh -c "python build_graph.py && streamlit run chat/interface.py --server.address=0.0.0.0"
+    command: sh -c "python build_graph.py && streamlit run chat/interface.py --server.address=0.0.0.0 --server.headless=true"

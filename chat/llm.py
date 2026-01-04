@@ -61,6 +61,9 @@ JSON: {"tool": "upstream", "params": {"node_id": "database:orders-db"}}
 Q: "Impact of redis-main failure?"
 JSON: {"tool": "blast_radius", "params": {"node_id": "cache:redis-main"}}
 
+Q: "What if redis goes down?"
+JSON: {"tool": "blast_radius", "params": {"node_id": "cache:redis-main"}}
+
 Q: "What happens if payment fails?"
 JSON: {"tool": "blast_radius", "params": {"node_id": "service:payment-service"}}
 
@@ -132,8 +135,11 @@ User Question: "{user_query}"
 System Data: {json.dumps(tool_output)}
 
 Instructions:
-- Use the System Data to answer the User Question.
-- If the data contains an error (like "Node not found"), explain it clearly as a system query error.
+- Use STRICTLY the System Data to answer the User Question.
+- If the System Data is empty `{}`, `[]`, or `null`: You MUST say "I could not find that service or component in the graph."
+- Do NOT invent services (like "Service A", "Service B") that are not in the data.
+- Do NOT make general statements about technology (e.g. "Redis is usually used for caching") unless you explicitly state it's general knowledge and NOT from the graph.
+- If the data contains an error (like "Node not found"), report it.
 - Keep it concise and technical.
 """
         return self.generate_stream(prompt)

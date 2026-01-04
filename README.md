@@ -11,6 +11,11 @@ Imagine asking: *"What breaks if the Payments Database goes down?"* and getting 
 2.  **Connects the Dots**: It builds a "Graph" - a visual map of how everything connects (Service A calls Service B, Team X owns Database Y).
 3.  **Lets You Chat**: You can ask it questions in plain English, and it answers using that map.
 
+### ✨ New Features (v1.1)
+- **🧠 Fuzzy Search**: Typos? No problem. Ask for "user-db" and it finds `database:users-db`.
+- **💥 Deep Blast Radius**: Ask "what if X fails?" and get a multi-level dependency tree explaining *why* services break.
+- **📜 Real-time History**: Your session stays in the sidebar, updating instantly as you chat.
+
 ---
 
 ## 🚀 How to Run It (The Easy Way)
@@ -124,3 +129,13 @@ If you want to run the checks yourself:
     ```bash
     pytest tests/
     ```
+
+---
+
+## 🔮 Future Roadmap (Scaling to Enterprise)
+
+While this version is designed for speed and privacy (Graph-in-Memory + Local LLM), here is how we simulate a production-grade rollout:
+
+1.  **Persistent Storage**: Swap `NetworkX` for **Neo4j** or **Amazon Neptune** to handle millions of nodes and historical time-travel.
+2.  **Advanced UI**: Migrate from Streamlit to **React + Next.js** for finer control over visualization and WebSocket-based real-time updates.
+3.  **Agentic Workflows**: Integrate **LangChain/LangGraph** to allow the AI to proactively check GitHub PRs, query PagerDuty, and auto-update the graph.
