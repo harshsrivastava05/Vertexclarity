@@ -42,21 +42,21 @@ Here is how we built it and **why** we made these choices.
 ```mermaid
 graph TD
     subgraph "Ingestion Layer"
-        Files[Config Files] --> Connectors
+        Files["Config Files"] --> Connectors
         Connectors["Connectors (Docker, K8s, Teams)"] --> Parser[BaseConnector]
     end
     
     subgraph "Core Engine"
-        Parser --> Builder[Graph Builder]
-        Builder --> Graph[NetworkX Graph]
+        Parser --> Builder["Graph Builder"]
+        Builder --> Graph["NetworkX Graph"]
     end
     
     subgraph "Interaction Layer"
-        User --> UI[Streamlit UI]
-        UI --> Query[Query Engine]
+        User --> UI["Streamlit UI"]
+        UI --> Query["Query Engine"]
         Query --> Graph
-        Query --> Context[Context Builder]
-        Context --> LLM[Llama 3.1]
+        Query --> Context["Context Builder"]
+        Context --> LLM["Llama 3.1"]
         LLM --> UI
     end
 ```
